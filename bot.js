@@ -78,7 +78,7 @@ async function checkForUpdates() {
       previousData = currentData;
       return currentData[currentData.length - 1]; // Возвращаем только последнюю строку
     } else {
-      //console.log('Нет новых данных.');
+      // console.log('Нет новых данных.');
       return null;
     }
   } catch (error) {
