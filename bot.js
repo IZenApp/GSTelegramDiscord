@@ -8,7 +8,7 @@ import path from 'path';
 
 // Настройки для Google Sheets API
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
-const credentialsPath = path.join(process.cwd(), 'discordbot-437914-409ab6e0cef6.json');
+const credentialsPath = path.join(process.cwd(), 'conf/discordbot-437914-409ab6e0cef6.json');
 const auth = new GoogleAuth({
   keyFile: credentialsPath,
   scopes: SCOPES,
@@ -31,7 +31,7 @@ let userChatIds = new Set();
 // Загрузка chat ID из файла
 function loadChatIds() {
   try {
-    const data = fs.readFileSync('chat_ids.json', 'utf-8');
+    const data = fs.readFileSync('conf/chat_ids.json', 'utf-8');
     userChatIds = new Set(JSON.parse(data));
     console.log('Загружены chat IDs:', userChatIds);
   } catch (error) {
@@ -41,7 +41,7 @@ function loadChatIds() {
 
 // Сохранение chat ID в файл
 function saveChatIds() {
-  fs.writeFileSync('chat_ids.json', JSON.stringify([...userChatIds]));
+  fs.writeFileSync('conf/chat_ids.json', JSON.stringify([...userChatIds]));
   console.log('Chat IDs сохранены:', userChatIds);
 }
 
