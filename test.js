@@ -121,8 +121,11 @@ async function sendMessageToDiscord(formData) {
         embeds: [{
           title: 'Новая форма:',
           description: formData.map((item, index) => `**Поле ${index + 1}:** ${item}`).join('\n'),
-          color: 0x00FF00, // Цвет рамки (можно изменить)ы
-          timestamp: new Date(),
+          color: 0x00FF00, // Цвет рамки (можно изменить)
+          footer: {
+            text: 'Одобрено: ' + new Date().toLocaleString(),
+          },
+          //timestamp: new Date(),
         }],
         content: '@everyone', // или другой текст, если нужно
       };
