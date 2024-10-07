@@ -125,7 +125,7 @@ async function sendMessageToDiscord(formData) {
           footer: {
             text: 'Одобрено: ' + new Date().toLocaleString(),
           },
-          //timestamp: new Date(),
+          // timestamp: new Date(),
         }],
         content: '@everyone', // или другой текст, если нужно
       };
