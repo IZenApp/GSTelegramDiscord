@@ -30,14 +30,30 @@ let userChatIds = new Set();
 
 // Загрузка chat ID из файла
 function loadChatIds() {
+  const chatIdsFilePath = 'conf/test-chat_ids.json';
+  
   try {
-    const data = fs.readFileSync('conf/chat_ids.json', 'utf-8');
-    userChatIds = new Set(JSON.parse(data));
-    console.log('Загружены chat IDs:', userChatIds);
+    // Проверка на существование файла
+    if (!fs.existsSync(chatIdsFilePath)) {
+      console.log('Файл не найден. Создание нового файла conf/test-chat_ids.json.');
+      // Создание пустого файла с начальным содержимым
+      fs.writeFileSync(chatIdsFilePath, JSON.stringify([]));
+    }
+
+    const data = fs.readFileSync(chatIdsFilePath, 'utf-8');
+    if (data.trim().length === 0) {
+      console.log('Файл conf/test-chat_ids.json пуст, инициализация пустого множества.');
+      userChatIds = new Set();
+    } else {
+      userChatIds = new Set(JSON.parse(data));
+      console.log('Загружены chat IDs:', userChatIds);
+    }
+
   } catch (error) {
     console.log('Не удалось загрузить chat IDs:', error);
   }
 }
+
 
 // Сохранение chat ID в файл
 function saveChatIds() {
