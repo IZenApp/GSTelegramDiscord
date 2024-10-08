@@ -30,11 +30,11 @@
 
 ## Установка библиотек
 В проекте используются следующие библиотеки:
-	•	googleapis: предоставляет доступ к API Google.
-	•	google-auth-library: используется для аутентификации с Google API.
-	•	node-telegram-bot-api: библиотека для работы с Telegram Bot API.
-	•	node-fetch: для отправки HTTP-запросов.
-	•	fs и path: встроенные модули Node.js для работы с файловой системой и путями.
+- **googleapis**: предоставляет доступ к API Google.
+- **google-auth-library**: используется для аутентификации с Google API.
+- **node-telegram-bot-api**: библиотека для работы с Telegram Bot API.
+- **node-fetch**: для отправки HTTP-запросов.
+- **fs** и **path**: встроенные модули Node.js для работы с файловой системой и путями.
 
 Чтобы установить их, выполните команду:
     ```sh
