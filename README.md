@@ -37,19 +37,17 @@
 - **fs** и **path**: встроенные модули Node.js для работы с файловой системой и путями.
 
 Чтобы установить их, выполните команду:
-    ```sh
-    npm install googleapis
-    ```
-    ```sh
-    npm install google-auth-library
-    ```
-    ```sh
-    npm install node-telegram-bot-api node-fetch
-    ```
-    ```sh
-    npm install node-fetch
-    ```
-    
+```sh
+npm install googleapis
+```
+
+```sh
+npm install google-auth-library
+```
+
+```sh
+npm install node-telegram-bot-api node-fetch
+```
 
 ## Конфигурация
 1. **Google Sheets API**:
