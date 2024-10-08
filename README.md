@@ -47,7 +47,7 @@
 ## Установка
 1. Клонируйте репозиторий:
     ```sh
-    git clone https://github.com/IZenApp/TelegramWebhook.bot.git
+    git clone https://github.com/IZenApp/GSTelegramDiscord.bot.git
     ```
 2. Перейдите в директорию проекта:
     ```sh
