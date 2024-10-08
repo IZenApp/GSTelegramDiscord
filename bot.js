@@ -8,7 +8,7 @@ import path from 'path';
 
 // Настройки для Google Sheets API
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
-const credentialsPath = path.join(process.cwd(), 'conf/discordbot-437914-409ab6e0cef6.json');
+const credentialsPath = path.join(process.cwd(), 'conf/discordbot.json');
 const auth = new GoogleAuth({
   keyFile: credentialsPath,
   scopes: SCOPES,

@@ -10,7 +10,7 @@
 ## Установка
 1. Клонируйте репозиторий:
     ```sh
-    git clone https://github.com/yourusername/your-repo.git
+    git clone https://github.com/IZenApp/TelegramWebhook.bot.git
     ```
 2. Перейдите в директорию проекта:
     ```sh
@@ -33,7 +33,7 @@
     - Создайте проект в [Google Cloud Console](https://console.cloud.google.com/).
     - Включите Google Sheets API.
     - Создайте учетные данные и скачайте JSON файл.
-    - Поместите JSON файл в директорию `conf/` и назовите его `discordbot-437914-409ab6e0cef6.json`.
+    - Поместите JSON файл в директорию `conf/` и назовите его `discordbot.json`.
 
 2. **Telegram Bot**:
     - Создайте бота в Telegram через [BotFather](https://core.telegram.org/bots#botfather).
