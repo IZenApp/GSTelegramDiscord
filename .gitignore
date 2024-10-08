@@ -1,3 +1,4 @@
 Test-GSTelegramDiscord.js
 conf/test-discordbot.json
+conf/chat_ids.json
 conf/test-chat_ids.json
