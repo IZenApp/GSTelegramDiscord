@@ -78,8 +78,7 @@ async function checkForUpdates() {
       previousData = currentData;
       return currentData[currentData.length - 1]; // Возвращаем только последнюю строку
     } else {
-      // console.log('Нет новых данных.');
-      return null;
+      return null; // Нет новых данных
     }
   } catch (error) {
     console.error('Ошибка при получении данных из Google Sheets:', error);
@@ -89,24 +88,24 @@ async function checkForUpdates() {
 
 // Обработка подтверждения
 bot.onText(/\/confirm (.+)/, async (msg, match) => {
-    const chatId = msg.chat.id;
-    
-    try {
-      const formData = JSON.parse(match[1]); // Получаем данные формы как массив
-  
-      const message = `*Данные формы подтверждены:*\n\n` + 
-                      formData.map((item, index) => `• Поле ${index + 1}: ${item}`).join('\n');
-  
-      // Отправляем данные в Discord
-      await sendMessageToDiscord(formData);
-  
-      // Отправляем подтверждение в Telegram
-      bot.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
-    } catch (error) {
-      console.error('Ошибка при обработке команды /confirm:', error);
-      bot.sendMessage(chatId, 'Произошла ошибка при подтверждении данных. Пожалуйста, попробуйте еще раз.');
-    }
-  });
+  const chatId = msg.chat.id;
+
+  try {
+    const formData = JSON.parse(match[1]); // Получаем данные формы как массив
+
+    const message = `*Данные формы подтверждены:*\n\n` + 
+                    formData.map((item, index) => `• Поле ${index + 1}: ${item}`).join('\n');
+
+    // Отправляем данные в Discord
+    await sendMessageToDiscord(formData);
+
+    // Отправляем подтверждение в Telegram
+    bot.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
+  } catch (error) {
+    console.error('Ошибка при обработке команды /confirm:', error);
+    bot.sendMessage(chatId, 'Произошла ошибка при подтверждении данных. Пожалуйста, попробуйте еще раз.');
+  }
+});
 
 // Обработка отклонения
 bot.onText(/\/decline/, (msg) => {
@@ -116,67 +115,95 @@ bot.onText(/\/decline/, (msg) => {
 
 // Отправка сообщения в Discord
 async function sendMessageToDiscord(formData) {
-    try {
-      const payload = {
-        embeds: [{
-          title: 'Новая форма:',
-          description: formData.map((item, index) => `**Поле ${index + 1}:** ${item}`).join('\n'),
-          color: 0x00FF00, // Цвет рамки (можно изменить)
-          footer: {
-            text: 'Одобрено: ' + new Date().toLocaleString(),
-          },
-          // timestamp: new Date(),
-        }],
-        content: '@everyone', // или другой текст, если нужно
-      };
-      const response = await fetch(discordWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (response.status === 204) {
-        console.log('Сообщение успешно отправлено в Discord.');
-      } else {
-        console.log(`Ошибка при отправке в Discord: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Ошибка при отправке в Discord:', error);
-    }
+  const fieldNames = [
+    'Прізвище, ім\'я, по батькові',
+    '123',
+    'Телефон',
+    'Факультет/інститут',
+    '№ групи'
+  ];
+
+  const payload = {
+    embeds: [{
+      title: 'Новая форма:',
+      description: formData.map((item, index) => `**${fieldNames[index] || `Поле ${index + 1}`}:** ${item}`).join('\n'),
+      color: 0xFFA500, // Оранжевый цвет рамки
+      footer: {
+        text: 'Одобрено: ' + new Date().toLocaleString(),
+      },
+    }],
+    content: '@everyone', // или другой текст, если нужно
+  };
+
+  const response = await fetch(discordWebhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (response.status === 204) {
+    console.log('Сообщение успешно отправлено в Discord.');
+  } else {
+    console.log(`Ошибка при отправке в Discord: ${response.status}`);
   }
+}
 
 // Отправка обновлений в Telegram
 async function handleTelegramUpdates(data) {
-    const message = `Новая форма поступила! Пожалуйста, подтвердите или отклоните.\n\n`;
-  
-    // Предположим, что данные формы являются массивом
-    const formFields = data.map((item, index) => `*Поле ${index + 1}:* ${item}`).join('\n');
-  
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: 'Подтвердить', callback_data: `confirm ${JSON.stringify(data)}` },
-            { text: 'Отклонить', callback_data: 'decline' },
-          ],
-        ],
-      },
-    };
-  
-    for (const chatId of userChatIds) {
-      bot.sendMessage(chatId, `${message}${formFields}`, { parse_mode: 'Markdown', reply_markup: options.reply_markup })
-        .then(() => console.log(`Сообщение отправлено пользователю ${chatId}`))
-        .catch((error) => console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error));
+  const fieldNames = [
+    'ПИБ',
+    '123',
+    'Телефон',
+    'Факультет',
+    'Должность'
+  ];
+
+  // Создание сообщения с полученными данными
+  const message = `\`\`\`\nНовая форма поступила!\n\n` + 
+                  data.map((item, index) => `${fieldNames[index] || `Поле ${index + 1}`}: ${item}`).join('\n') + 
+                  `\n\`\`\``;
+
+  const formId = 'form_123';  // Уникальный идентификатор формы
+  const options = {
+    reply_markup: JSON.stringify({
+      inline_keyboard: [
+        [
+          { text: "Подтвердить", callback_data: `confirm ${JSON.stringify(data)}` },
+          { text: "Отклонить", callback_data: `decline` }
+        ]
+      ]
+    }),
+    parse_mode: 'Markdown',
+  };
+
+  // Отправка сообщения всем пользователям
+  for (const chatId of userChatIds) {
+    try {
+      await bot.sendMessage(chatId, message, options);
+      console.log(`Сообщение отправлено пользователю ${chatId}`);
+    } catch (error) {
+      console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error);
     }
   }
+}
 
 // Обработка нажатий на кнопки
 bot.on('callback_query', async (callbackQuery) => {
   const chatId = callbackQuery.message.chat.id;
-  const action = callbackQuery.data;
+  let actionData;
 
-  if (action.startsWith('confirm')) {
-    const formData = action.replace('confirm ', '');
-    await sendMessageToDiscord(JSON.parse(formData));
+  try {
+    actionData = JSON.parse(callbackQuery.data);
+  } catch (error) {
+    console.error('Ошибка при разборе данных callback_data:', error);
+    bot.sendMessage(chatId, 'Произошла ошибка при обработке данных.');
+    return;
+  }
+
+  const { action, data } = actionData;
+
+  if (action === 'confirm') {
+    await sendMessageToDiscord(data); // Отправляем данные на Discord
     bot.sendMessage(chatId, 'Данные успешно отправлены в Discord.');
   } else if (action === 'decline') {
     bot.sendMessage(chatId, 'Вы отклонили данные.');

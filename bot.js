@@ -116,73 +116,108 @@ bot.onText(/\/decline/, (msg) => {
 
 // Отправка сообщения в Discord
 async function sendMessageToDiscord(formData) {
-    try {
-      const payload = {
-        embeds: [{
-          title: 'Новая форма:',
-          description: formData.map((item, index) => `**Поле ${index + 1}:** ${item}`).join('\n'),
-          color: 0x00FF00, // Цвет рамки (можно изменить)
-          footer: {
-            text: 'Одобрено: ' + new Date().toLocaleString(),
-          },
-          // timestamp: new Date(),
-        }],
-        content: '@everyone', // или другой текст, если нужно
-      };
-      const response = await fetch(discordWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (response.status === 204) {
-        console.log('Сообщение успешно отправлено в Discord.');
-      } else {
-        console.log(`Ошибка при отправке в Discord: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Ошибка при отправке в Discord:', error);
+  const headers = await getSheetHeaders(); // Получаем заголовки (вопросы)
+
+  const fieldsForDiscord = formData.map((item, index) => {
+    const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
+    return `**${header}:** ${item}`;
+  }).join('\n');
+
+  try {
+    const payload = {
+      embeds: [{
+        title: 'Новая форма:',
+        description: fieldsForDiscord, // Добавляем заголовки и ответы для Discord
+        color: 0xFFA500, // Цвет рамки (можно изменить)
+        footer: {
+          text: 'Одобрено: ' + new Date().toLocaleString(),
+        },
+        // timestamp: new Date(),
+      }],
+      content: '@everyone', // или другой текст, если нужно
+    };
+    const response = await fetch(discordWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (response.status === 204) {
+      console.log('Сообщение успешно отправлено в Discord.');
+    } else {
+      console.log(`Ошибка при отправке в Discord: ${response.status}`);
     }
+  } catch (error) {
+    console.error('Ошибка при отправке в Discord:', error);
   }
+}
 
 // Отправка обновлений в Telegram
-async function handleTelegramUpdates(data) {
-    const message = `Новая форма поступила! Пожалуйста, подтвердите или отклоните.\n\n`;
-  
-    // Предположим, что данные формы являются массивом
-    const formFields = data.map((item, index) => `*Поле ${index + 1}:* ${item}`).join('\n');
-  
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: 'Подтвердить', callback_data: `confirm ${JSON.stringify(data)}` },
-            { text: 'Отклонить', callback_data: 'decline' },
-          ],
-        ],
-      },
-    };
-  
-    for (const chatId of userChatIds) {
-      bot.sendMessage(chatId, `${message}${formFields}`, { parse_mode: 'Markdown', reply_markup: options.reply_markup })
-        .then(() => console.log(`Сообщение отправлено пользователю ${chatId}`))
-        .catch((error) => console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error));
-    }
+// Хранилище данных форм
+const formStore = [];
+
+// Сохранение данных формы и возвращение индекса
+function storeFormData(data) {
+  formStore.push(data);
+  return formStore.length - 1;
+}
+
+async function getSheetHeaders() {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Sheet1!B1:Z1', // Первая строка с заголовками
+    });
+    return response.data.values[0]; // Возвращаем первую строку как массив заголовков
+  } catch (error) {
+    console.error('Ошибка при получении заголовков из Google Sheets:', error);
+    return [];
   }
+}
+
+// Отправка обновлений в Telegram с короткими данными для кнопок
+async function handleTelegramUpdates(data) {
+  const headers = await getSheetHeaders(); // Получаем заголовки (вопросы)
+  const formDataIndex = storeFormData(data); // Сохраняем данные формы и получаем индекс
+
+  const message = `Новая форма поступила! Пожалуйста, подтвердите или отклоните.\n\n`;
+
+  const formFields = data.map((item, index) => {
+    const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
+    return `*${header}:* ${item}`;
+  }).join('\n');
+
+  const options = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: 'Подтвердить', callback_data: `confirm_${formDataIndex}` },
+          { text: 'Отклонить', callback_data: 'decline' },
+        ],
+      ],
+    },
+  };
+
+  for (const chatId of userChatIds) {
+    bot.sendMessage(chatId, `${message}${formFields}`, { parse_mode: 'Markdown', reply_markup: options.reply_markup })
+      .then(() => console.log(`Сообщение отправлено пользователю ${chatId}`))
+      .catch((error) => console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error));
+  }
+}
 
 // Обработка нажатий на кнопки
 bot.on('callback_query', async (callbackQuery) => {
   const chatId = callbackQuery.message.chat.id;
   const action = callbackQuery.data;
 
-  if (action.startsWith('confirm')) {
-    const formData = action.replace('confirm ', '');
-    await sendMessageToDiscord(JSON.parse(formData));
+  if (action.startsWith('confirm_')) {
+    const formDataIndex = parseInt(action.replace('confirm_', ''), 10);
+    const formData = formStore[formDataIndex];
+    await sendMessageToDiscord(formData);
     bot.sendMessage(chatId, 'Данные успешно отправлены в Discord.');
   } else if (action === 'decline') {
     bot.sendMessage(chatId, 'Вы отклонили данные.');
   }
 
-  // Удаляем сообщение с кнопками после нажатия
   bot.deleteMessage(chatId, callbackQuery.message.message_id).catch((error) => {
     console.log('Ошибка при удалении сообщения:', error);
   });
