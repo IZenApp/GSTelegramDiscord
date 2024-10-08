@@ -16,14 +16,14 @@ const auth = new GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 // Получаем лист Google Sheets
-const sheetId = '1uzFT3J3QbluLhM2SsB6TqBghPV2J4ftkcOSNFpzUc7c'; // Замените на свой ID Google Sheets
+const sheetId = 'Google Sheets'; // Замените на свой ID Google Sheets
 
 // Настройки Telegram
-const botToken = '7678987754:AAE3v8GmtwD8KPzLiPO1itoqnnoNBmFXDCc';
+const botToken = 'BotToken'; // Замените на свой Bot Token
 const bot = new TelegramBot(botToken, { polling: true });
 
 // URL вебхука Discord
-const discordWebhookUrl = 'https://discord.com/api/webhooks/1292903156556103763/QEiWjpa8pb-S9Sy_HoqpPTubsf3ys5iiELqT0b4QO2LfwQFQ7msA3-CoE9Ht1IjwZ1w-';
+const discordWebhookUrl = 'DiscordWebhook'; // Замените на свой URL вебхука Discord
 
 // Хранение chat ID пользователей
 let userChatIds = new Set();
