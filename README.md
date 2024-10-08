@@ -28,6 +28,19 @@
     ```
 2. Бот автоматически начнет опрашивать Telegram и отправлять данные в Discord.
 
+## Установка библиотек
+В проекте используются следующие библиотеки:
+	•	googleapis: предоставляет доступ к API Google.
+	•	google-auth-library: используется для аутентификации с Google API.
+	•	node-telegram-bot-api: библиотека для работы с Telegram Bot API.
+	•	node-fetch: для отправки HTTP-запросов.
+	•	fs и path: встроенные модули Node.js для работы с файловой системой и путями.
+
+Чтобы установить их, выполните команду:
+    ```sh
+    npm install googleapis google-auth-library node-telegram-bot-api node-fetch
+    ```
+
 ## Конфигурация
 1. **Google Sheets API**:
     - Создайте проект в [Google Cloud Console](https://console.cloud.google.com/).
