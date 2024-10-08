@@ -87,7 +87,7 @@ npm install googleapis google-auth-library node-telegram-bot-api node-fetch
     - Замените `discordWebhookUrl` в `GSTelegramDiscord.js`.
 
 4. **Chat IDs**:
-    - Создайте файл `chat_ids.json` в директории `conf/` и добавьте chat ID пользователей в формате JSON.
+    - Создайте файл `chat_ids.json` в директории `conf/` и добавьте chat ID пользователей в формате JSON. Этот файл создается автоматически при первом запуске бота, если его не существует.
 
 ## Использование
 1. Запустите бота:

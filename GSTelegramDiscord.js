@@ -16,33 +16,33 @@ const auth = new GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 
 // Получаем лист Google Sheets
-const sheetId = 'Google Sheets'; // Замените на свой ID Google Sheets
+const sheetId = 'SheetsID'; // Замените на свой ID Google Sheets
 
 // Настройки Telegram
-const botToken = 'BotToken'; // Замените на свой Bot Token
+const botToken = 'BotToken'; // Замените на свой токен бота
 const bot = new TelegramBot(botToken, { polling: true });
 
 // URL вебхука Discord
-const discordWebhookUrl = 'DiscordWebhook'; // Замените на свой URL вебхука Discord
+const discordWebhookUrl = 'DiscordWebhookURL'; // Замените на свой URL вебхука Discord
 
 // Хранение chat ID пользователей
 let userChatIds = new Set();
 
 // Загрузка chat ID из файла
 function loadChatIds() {
-  const chatIdsFilePath = 'conf/test-chat_ids.json';
+  const chatIdsFilePath = 'conf/chat_ids.json';
   
   try {
     // Проверка на существование файла
     if (!fs.existsSync(chatIdsFilePath)) {
-      console.log('Файл не найден. Создание нового файла conf/test-chat_ids.json.');
+      console.log('Файл не найден. Создание нового файла conf/chat_ids.json.');
       // Создание пустого файла с начальным содержимым
       fs.writeFileSync(chatIdsFilePath, JSON.stringify([]));
     }
 
     const data = fs.readFileSync(chatIdsFilePath, 'utf-8');
     if (data.trim().length === 0) {
-      console.log('Файл conf/test-chat_ids.json пуст, инициализация пустого множества.');
+      console.log('Файл conf/chat_ids.json пуст, инициализация пустого множества.');
       userChatIds = new Set();
     } else {
       userChatIds = new Set(JSON.parse(data));
@@ -53,7 +53,6 @@ function loadChatIds() {
     console.log('Не удалось загрузить chat IDs:', error);
   }
 }
-
 
 // Сохранение chat ID в файл
 function saveChatIds() {
@@ -85,12 +84,12 @@ async function checkForUpdates() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Sheet1!B2:Z1000', // Укажите диапазон ваших данных
+      range: 'Sheet1!C2:F', // Укажите диапазон ваших данных
     });
     const currentData = response.data.values || [];
 
     if (JSON.stringify(currentData) !== JSON.stringify(previousData)) {
-      console.log('Обнаружены обновления в Google Sheets!');
+      // console.log('Обнаружены обновления в Google Sheets!');
       previousData = currentData;
       return currentData[currentData.length - 1]; // Возвращаем только последнюю строку
     } else {
@@ -136,27 +135,28 @@ async function sendMessageToDiscord(formData) {
 
   const fieldsForDiscord = formData.map((item, index) => {
     const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
-    return `**${header}:** ${item}`;
-  }).join('\n');
+    return `**${header}:**\n${item}`; // Форматируем, убирая лишние пробелы
+  }).join('\n'); // Добавляем двойной перевод строки между полями
 
   try {
     const payload = {
       embeds: [{
-        title: 'Новая форма:',
+        // title: 'Новая форма:',
         description: fieldsForDiscord, // Добавляем заголовки и ответы для Discord
         color: 0xFFA500, // Цвет рамки (можно изменить)
         footer: {
           text: 'Одобрено: ' + new Date().toLocaleString(),
         },
-        // timestamp: new Date(),
       }],
       content: '@everyone', // или другой текст, если нужно
     };
+    
     const response = await fetch(discordWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    
     if (response.status === 204) {
       console.log('Сообщение успешно отправлено в Discord.');
     } else {
@@ -181,7 +181,7 @@ async function getSheetHeaders() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Sheet1!B1:Z1', // Первая строка с заголовками
+      range: 'Sheet1!C1:F1', // Первая строка с заголовками
     });
     return response.data.values[0]; // Возвращаем первую строку как массив заголовков
   } catch (error) {
@@ -195,12 +195,12 @@ async function handleTelegramUpdates(data) {
   const headers = await getSheetHeaders(); // Получаем заголовки (вопросы)
   const formDataIndex = storeFormData(data); // Сохраняем данные формы и получаем индекс
 
-  const message = `Новая форма поступила! Пожалуйста, подтвердите или отклоните.\n\n`;
+  const message = `Новая форма поступила!\n\n`;
 
   const formFields = data.map((item, index) => {
     const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
-    return `*${header}:* ${item}`;
-  }).join('\n');
+    return `**${header}:**\n${item}`; // Форматируем, убирая лишние пробелы
+  }).join('\n'); // Добавляем двойной перевод строки между полями
 
   const options = {
     reply_markup: {
