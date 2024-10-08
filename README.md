@@ -80,11 +80,11 @@ npm install googleapis google-auth-library node-telegram-bot-api node-fetch
 
 2. **Telegram Bot**:
     - Создайте бота в Telegram через [BotFather](https://core.telegram.org/bots#botfather).
-    - Получите токен и замените `botToken` в `bot.js`.
+    - Получите токен и замените `BotToken` в `GoogleSheetsTelegramBot.js`.
 
 3. **Discord Webhook**:
     - Создайте вебхук в вашем Discord сервере.
-    - Замените `discordWebhookUrl` в `bot.js`.
+    - Замените `discordWebhookUrl` в `GoogleSheetsTelegramBot.js`.
 
 4. **Chat IDs**:
     - Создайте файл `chat_ids.json` в директории `conf/` и добавьте chat ID пользователей в формате JSON.
@@ -92,6 +92,6 @@ npm install googleapis google-auth-library node-telegram-bot-api node-fetch
 ## Использование
 1. Запустите бота:
     ```sh
-    node bot.js
+    node GoogleSheetsTelegramBot.js
     ```
 2. Бот автоматически начнет опрашивать Telegram и отправлять данные в Discord.
