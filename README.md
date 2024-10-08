@@ -7,6 +7,43 @@
 - Node.js (рекомендуется версия 14.x и выше)
 - npm (Node Package Manager)
 
+## Установка Node.js и npm
+1. **Linux (Ubuntu/Debian):**
+    - Откройте терминал и выполните следующие команды:
+    ```sh
+    sudo apt update
+    sudo apt install nodejs npm
+    ```
+    - Проверьте успешную установку:
+    ```sh
+    node -v
+    npm -v
+    ```
+
+2. **macOS:**
+    - Установите [Homebrew](https://brew.sh/), если он не установлен:
+    ```sh
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+    - Установите Node.js и npm:
+    ```sh
+    brew install node
+    ```
+    - Проверьте успешную установку:
+    ```sh
+    node -v
+    npm -v
+    ```
+
+3. **Windows:**
+    - Скачайте и установите Node.js с официального сайта: [https://nodejs.org](https://nodejs.org).
+    - Во время установки убедитесь, что npm также установлен (он входит в состав Node.js).
+    - Проверьте успешную установку, открыв командную строку (cmd) и выполнив команды:
+    ```sh
+    node -v
+    npm -v
+    ```
+
 ## Установка
 1. Клонируйте репозиторий:
     ```sh
@@ -20,13 +57,6 @@
     ```sh
     npm install
     ```
-
-## Использование
-1. Запустите бота:
-    ```sh
-    node bot.js
-    ```
-2. Бот автоматически начнет опрашивать Telegram и отправлять данные в Discord.
 
 ## Установка библиотек
 В проекте используются следующие библиотеки:
@@ -58,3 +88,10 @@ npm install googleapis google-auth-library node-telegram-bot-api node-fetch
 
 4. **Chat IDs**:
     - Создайте файл `chat_ids.json` в директории `conf/` и добавьте chat ID пользователей в формате JSON.
+
+## Использование
+1. Запустите бота:
+    ```sh
+    node bot.js
+    ```
+2. Бот автоматически начнет опрашивать Telegram и отправлять данные в Discord.
