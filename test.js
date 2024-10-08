@@ -78,7 +78,8 @@ async function checkForUpdates() {
       previousData = currentData;
       return currentData[currentData.length - 1]; // Возвращаем только последнюю строку
     } else {
-      return null; // Нет новых данных
+      // console.log('Нет новых данных.');
+      return null;
     }
   } catch (error) {
     console.error('Ошибка при получении данных из Google Sheets:', error);
@@ -88,24 +89,24 @@ async function checkForUpdates() {
 
 // Обработка подтверждения
 bot.onText(/\/confirm (.+)/, async (msg, match) => {
-  const chatId = msg.chat.id;
-
-  try {
-    const formData = JSON.parse(match[1]); // Получаем данные формы как массив
-
-    const message = `*Данные формы подтверждены:*\n\n` + 
-                    formData.map((item, index) => `• Поле ${index + 1}: ${item}`).join('\n');
-
-    // Отправляем данные в Discord
-    await sendMessageToDiscord(formData);
-
-    // Отправляем подтверждение в Telegram
-    bot.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
-  } catch (error) {
-    console.error('Ошибка при обработке команды /confirm:', error);
-    bot.sendMessage(chatId, 'Произошла ошибка при подтверждении данных. Пожалуйста, попробуйте еще раз.');
-  }
-});
+    const chatId = msg.chat.id;
+    
+    try {
+      const formData = JSON.parse(match[1]); // Получаем данные формы как массив
+  
+      const message = `*Данные формы подтверждены:*\n\n` + 
+                      formData.map((item, index) => `• Поле ${index + 1}: ${item}`).join('\n');
+  
+      // Отправляем данные в Discord
+      await sendMessageToDiscord(formData);
+  
+      // Отправляем подтверждение в Telegram
+      bot.sendMessage(chatId, message, { parse_mode: 'MarkdownV2' });
+    } catch (error) {
+      console.error('Ошибка при обработке команды /confirm:', error);
+      bot.sendMessage(chatId, 'Произошла ошибка при подтверждении данных. Пожалуйста, попробуйте еще раз.');
+    }
+  });
 
 // Обработка отклонения
 bot.onText(/\/decline/, (msg) => {
@@ -115,101 +116,108 @@ bot.onText(/\/decline/, (msg) => {
 
 // Отправка сообщения в Discord
 async function sendMessageToDiscord(formData) {
-  const fieldNames = [
-    'Прізвище, ім\'я, по батькові',
-    '123',
-    'Телефон',
-    'Факультет/інститут',
-    '№ групи'
-  ];
+  const headers = await getSheetHeaders(); // Получаем заголовки (вопросы)
 
-  const payload = {
-    embeds: [{
-      title: 'Новая форма:',
-      description: formData.map((item, index) => `**${fieldNames[index] || `Поле ${index + 1}`}:** ${item}`).join('\n'),
-      color: 0xFFA500, // Оранжевый цвет рамки
-      footer: {
-        text: 'Одобрено: ' + new Date().toLocaleString(),
-      },
-    }],
-    content: '@everyone', // или другой текст, если нужно
-  };
+  const fieldsForDiscord = formData.map((item, index) => {
+    const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
+    return `**${header}:** ${item}`;
+  }).join('\n');
 
-  const response = await fetch(discordWebhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (response.status === 204) {
-    console.log('Сообщение успешно отправлено в Discord.');
-  } else {
-    console.log(`Ошибка при отправке в Discord: ${response.status}`);
+  try {
+    const payload = {
+      embeds: [{
+        title: 'Новая форма:',
+        description: fieldsForDiscord, // Добавляем заголовки и ответы для Discord
+        color: 0xFFA500, // Цвет рамки (можно изменить)
+        footer: {
+          text: 'Одобрено: ' + new Date().toLocaleString(),
+        },
+        // timestamp: new Date(),
+      }],
+      content: '@everyone', // или другой текст, если нужно
+    };
+    const response = await fetch(discordWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (response.status === 204) {
+      console.log('Сообщение успешно отправлено в Discord.');
+    } else {
+      console.log(`Ошибка при отправке в Discord: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Ошибка при отправке в Discord:', error);
   }
 }
 
 // Отправка обновлений в Telegram
+// Хранилище данных форм
+const formStore = [];
+
+// Сохранение данных формы и возвращение индекса
+function storeFormData(data) {
+  formStore.push(data);
+  return formStore.length - 1;
+}
+
+async function getSheetHeaders() {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Sheet1!B1:Z1', // Первая строка с заголовками
+    });
+    return response.data.values[0]; // Возвращаем первую строку как массив заголовков
+  } catch (error) {
+    console.error('Ошибка при получении заголовков из Google Sheets:', error);
+    return [];
+  }
+}
+
+// Отправка обновлений в Telegram с короткими данными для кнопок
 async function handleTelegramUpdates(data) {
-  const fieldNames = [
-    'ПИБ',
-    '123',
-    'Телефон',
-    'Факультет',
-    'Должность'
-  ];
+  const headers = await getSheetHeaders(); // Получаем заголовки (вопросы)
+  const formDataIndex = storeFormData(data); // Сохраняем данные формы и получаем индекс
 
-  // Создание сообщения с полученными данными
-  const message = `\`\`\`\nНовая форма поступила!\n\n` + 
-                  data.map((item, index) => `${fieldNames[index] || `Поле ${index + 1}`}: ${item}`).join('\n') + 
-                  `\n\`\`\``;
+  const message = `Новая форма поступила! Пожалуйста, подтвердите или отклоните.\n\n`;
 
-  const formId = 'form_123';  // Уникальный идентификатор формы
+  const formFields = data.map((item, index) => {
+    const header = headers[index] || `Поле ${index + 1}`; // Используем заголовок или номер поля, если заголовок не найден
+    return `*${header}:* ${item}`;
+  }).join('\n');
+
   const options = {
-    reply_markup: JSON.stringify({
+    reply_markup: {
       inline_keyboard: [
         [
-          { text: "Подтвердить", callback_data: `confirm ${JSON.stringify(data)}` },
-          { text: "Отклонить", callback_data: `decline` }
-        ]
-      ]
-    }),
-    parse_mode: 'Markdown',
+          { text: 'Подтвердить', callback_data: `confirm_${formDataIndex}` },
+          { text: 'Отклонить', callback_data: 'decline' },
+        ],
+      ],
+    },
   };
 
-  // Отправка сообщения всем пользователям
   for (const chatId of userChatIds) {
-    try {
-      await bot.sendMessage(chatId, message, options);
-      console.log(`Сообщение отправлено пользователю ${chatId}`);
-    } catch (error) {
-      console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error);
-    }
+    bot.sendMessage(chatId, `${message}${formFields}`, { parse_mode: 'Markdown', reply_markup: options.reply_markup })
+      .then(() => console.log(`Сообщение отправлено пользователю ${chatId}`))
+      .catch((error) => console.log(`Ошибка при отправке сообщения пользователю ${chatId}:`, error));
   }
 }
 
 // Обработка нажатий на кнопки
 bot.on('callback_query', async (callbackQuery) => {
   const chatId = callbackQuery.message.chat.id;
-  let actionData;
+  const action = callbackQuery.data;
 
-  try {
-    actionData = JSON.parse(callbackQuery.data);
-  } catch (error) {
-    console.error('Ошибка при разборе данных callback_data:', error);
-    bot.sendMessage(chatId, 'Произошла ошибка при обработке данных.');
-    return;
-  }
-
-  const { action, data } = actionData;
-
-  if (action === 'confirm') {
-    await sendMessageToDiscord(data); // Отправляем данные на Discord
+  if (action.startsWith('confirm_')) {
+    const formDataIndex = parseInt(action.replace('confirm_', ''), 10);
+    const formData = formStore[formDataIndex];
+    await sendMessageToDiscord(formData);
     bot.sendMessage(chatId, 'Данные успешно отправлены в Discord.');
   } else if (action === 'decline') {
     bot.sendMessage(chatId, 'Вы отклонили данные.');
   }
 
-  // Удаляем сообщение с кнопками после нажатия
   bot.deleteMessage(chatId, callbackQuery.message.message_id).catch((error) => {
     console.log('Ошибка при удалении сообщения:', error);
   });
