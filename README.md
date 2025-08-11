@@ -2,16 +2,24 @@
 
 # 🚀 GSTelegramDiscord
 
-**Автоматическая интеграция Google Sheets ↔ Telegram ↔ Discord**
+**Автоматическая интеграция Google Sheets с Telegram и Discord ботами**  
+*Синхронизация данных, уведомления и автоматизация рабочих процессов*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v24.5.0-green.svg)](https://nodejs.org/)
 [![Tests](https://img.shields.io/badge/Tests-✅%20Passing-brightgreen.svg)](#тестирование)
 [![Status](https://img.shields.io/badge/Status-🎯%20Ready-success.svg)](#результаты-тестирования)
+[![Topics](https://img.shields.io/badge/Topics-telegram--bot%20|%20googlesheets%20|%20discord--webhook-blue.svg)](#особенности)
 
 *Многофункциональный бот для автоматической отправки данных из Google Sheets в Telegram и Discord*
 
+**🏷️ Ключевые слова:** `telegram-bot` `googlesheets` `discord-webhook` `automation` `google-sheets-api` `telegram-api` `discord-api` `data-sync` `nodejs` `bot-framework` `webhook-integration` `spreadsheet-automation`
+
 </div>
+
+## 🎯 О проекте
+
+Современное решение для автоматизации workflow между Google Sheets, Telegram и Discord. Позволяет создавать мощные интеграции для уведомлений, синхронизации данных и автоматизации бизнес-процессов.
 
 ## 🌟 Особенности
 
