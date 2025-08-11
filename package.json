@@ -1,13 +1,44 @@
 {
-  "name": "telegram-discordbot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "bot.js",
+  "name": "gs-telegram-discord",
+  "version": "1.3.0",
+  "description": "🚀 Автоматическая интеграция Google Sheets ↔ Telegram ↔ Discord",
+  "main": "src/index.js",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IZenApp/GSTelegramDiscord.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "bugs": {
+    "url": "https://github.com/IZenApp/GSTelegramDiscord/issues"
+  },
+  "homepage": "https://github.com/IZenApp/GSTelegramDiscord#readme",
+  "scripts": {
+    "start": "./scripts/start.sh",
+    "install:deps": "./scripts/install.sh",
+    "test": "./scripts/run_tests.sh",
+    "test:virtual": "node tests/test_virtualBot.js",
+    "test:sheets": "node tests/test_googleSheets.js",
+    "test:discord": "node tests/test_discordWebhook.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [
+    "telegram",
+    "discord", 
+    "google-sheets",
+    "bot",
+    "automation",
+    "webhook",
+    "integration",
+    "nodejs",
+    "api"
+  ],
+  "author": "IZenApp",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^118.0.0",
+    "google-auth-library": "^8.8.0",
+    "node-telegram-bot-api": "^0.61.0",
+    "node-fetch": "^3.3.1",
+    "dotenv": "^16.1.4"
+  }
 }
