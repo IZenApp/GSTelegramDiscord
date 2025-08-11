@@ -45,22 +45,12 @@
 - 📊 Google Sheets модуль: ✅
 - 💬 Discord Webhook: ✅
 - 🛡️ Безопасный запуск: ✅
-- 📦 NPM скрипты: ✅
 
 **Статус проекта: ГОТОВ К ИСПОЛЬЗОВАНИЮ** 🎯
 
-## Тестирование
-
-Запуск всех тестов:
+Запуск тестов:
 ```bash
 ./scripts/run_tests.sh
-```
-
-Отдельные тесты:
-```bash
-npm run test:virtual    # Telegram бот
-npm run test:sheets     # Google Sheets
-npm run test:discord    # Discord Webhook
 ```
 
 ## 📚 Документация
@@ -78,7 +68,7 @@ npm run test:discord    # Discord Webhook
 
 <div align="center">
 
-### 📄 **Лицензия: [MIT](LICENSE)** | 🏢 **Автор: [IZenApp](https://github.com/IZenApp)** | 📋 **[Release Notes](RELEASE_NOTES.md)**
+### 📄 **Лицензия: [MIT](LICENSE)** | 🏢 **Автор: [IZenApp](https://github.com/IZenApp)**
 
 *Сделано с ❤️ для автоматизации workflow*
 
